@@ -35,18 +35,18 @@ def on_click(x,y,button,pressed):
 
 	else: #handles all events on mouse button release
 		print(f'Mouse button {button} was released')
-		if button == mouse.Button.left:
+		if button == mouse.Button.left: 
 			release_time = current_date_time
 			print(f'it was held for {(release_time - press_time).seconds} seconds')
-			if (release_time - press_time).seconds >= 10:
+			if (release_time - press_time).seconds >= 5: #if held for > 5 seconds, stop mouse listener
 				print('stopping mouse listener')
 				pynput.mouse.Listener.stop
-			elif (release_time - press_time).seconds >= hold_time:
+			elif (release_time - press_time).seconds >= hold_time: #if held for longer than specified hold_time, cancel timer
 				timer_time = datetime.min
 				print('The timer has been cancelled')
-			elif timer_time == datetime.min:
+			elif timer_time == datetime.min: #if no timer set, set new timer
 				timer_time = current_date_time + timedelta(minutes = timer_minutes_value, seconds = timer_seconds_value)
-			else:
+			else: #if timer exists, add time to timer
 				timer_time = timer_time + timedelta(minutes = timer_minutes_value, seconds = timer_seconds_value)
 		else:
 			pass
@@ -57,23 +57,23 @@ listener = mouse.Listener( #defines the mouse listener to use the on_click funct
 listener.start() #starts the mouse listener  
 
 while True:
-	last_date = current_date
+	last_date = current_date #keeps track of the date of last loop, so it can be updated only when it changes
 	last_time = current_time
 
-	current_date_time = datetime.now()
-	current_date = (current_date_time.day, current_date_time.month, current_date_time.year)
+	current_date_time = datetime.now() #updates current date_time - very important as this is used in almost all other functions (so as to reduce calls of .now())
+
+	current_date = (current_date_time.day, current_date_time.month, current_date_time.year) # could probably be made more streamlined?
 	current_time = (current_date_time.hour, current_date_time.minute, current_date_time.second)
 
 	if current_date != last_date or current_time != last_time:
-#		print(f'The date today is {current_date[0]}/{current_date[1]}/{current_date[2]} and the current time is {current_time[0]}:{current_time[1]}:{current_time[2]}') Simple formatting of date and current_time
 		print_date = current_date_time.strftime('%A the %d of %B, %Y')
 		print_time = current_date_time.strftime('%I:%M:%S %p') # formats the date and times into a nice format (Day the DD of Month, YYYY) (HH:MM:SS AM/PM)
-#		print(f'The date today is {current_date_time.strftime('%A the %d of %M, %Y')} and it is currently {current_date_time.strftime('%I:%M:%S%p')}')
 		print(f'The date today is {print_date} and the current time is {print_time}')
-		if timer_time > datetime.min:
+
+		if timer_time > datetime.min: #checks if timer set
 			print(f'The timer is set for {timer_time.time()} and will be on for {(timer_time - current_date_time).seconds} seconds')
-			if timer_time <= current_date_time:
+			if timer_time <= current_date_time: #checks if time has surpasses when timer should go off
 				print('WEEWOOWEEWOOWEEWOO Timer is going off')
-				timer_time = datetime.min
+				timer_time = datetime.min #resets the timer once it goes off
 		else:
 			print('There is no timer set at the moment')
