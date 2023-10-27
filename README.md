@@ -1,3 +1,5 @@
 Repository contatining things needed for the patent-pending Willy Nilly single button operated thermostat controls^tm.
-Uses a single button for controlling a timer, that turns on the heaters for the correct amount of time, and displays this in real time to a display.
-goodness knows how much this will end up being / needing / using but let's find out.
+Aims to use a single, hardware button to control the thermostat timer on a raspberry pi.
+
+Currently tracks left mouse input using pynput. 1 click adds 5 minutes, holding M1 for > 1 second cancels the timer.
+hold M1 for >5 seconds to kill the mouse listener (or it might eat up all the processor threads)
