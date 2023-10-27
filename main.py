@@ -1,6 +1,4 @@
-import time as time #might be needed for timing of certain things
 from datetime import datetime, date, time, timedelta #used to assertain current time and date
-import os
 
 #import gpiozero #handles all hardware events and pin controls
 
@@ -21,7 +19,7 @@ current_date_time = datetime.now() #initialises curent datetime
 
 #button = gpiozero.Button(7) #Assigns main button to Pin 7 WILL NEED CHANGING WHEN HARDWARE ASSEMBLED
 def on_click(x,y,button,pressed):
-	global current_date_time
+	global current_date_time #global variables used to track the timing of mouse events etc
 	global press_time
 	global release_time
 	global timer_time
