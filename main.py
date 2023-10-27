@@ -4,55 +4,54 @@ import os
 
 #import gpiozero #handles all hardware events and pin controls
 
-from pynput import keyboard #used for testing and utlising the keyboard as simulated buttons
+from pynput import mouse #used for testing and utlising the mouse as simulated buttons
 
 current_date = None #initialises current date and time variables
 current_time = None
 
-timer_value = 5 #THIS VARIABLE CONTROLS HOW LONG A TIMER TO BE SET (PER PRESS) IN SECONDS
+timer_minutes_value = 0 #These variables control how long to add to the timer per button press
+timer_seconds_value = 5 
+hold_time = 1 #This is how long constitutes holding the button (to reset the timer) in seconds
 
-press_times = {} #initialises dicts to track when keys pressed or released (to check how long they have been held)
-release_times = {}
+press_time = datetime.min
+release_time = datetime.min 
 
 timer_time = datetime.min #initialises the timer time to minimum possible time (as this can be treated as null in later logic)
 current_date_time = datetime.now() #initialises curent datetime
 
 #button = gpiozero.Button(7) #Assigns main button to Pin 7 WILL NEED CHANGING WHEN HARDWARE ASSEMBLED
-def on_press(key):
+def on_click(x,y,button,pressed):
 	global current_date_time
-	global press_times
-	try:
-		print(f' key {key.char} pressed') #testing lines to print when keys pressed and released
-		#press_times[key.char].append(current_date_time)
-	except AttributeError:
-		print(f' s key {key} pressed')
-		#if key == key.space:
-		#	press_times['space'].append(current_date_time)
-		#else:
-		#  	pass
+	global press_time
+	global release_time
+	global timer_time
 
-def on_release(key): #function for use with pynput, when space pressed adds 5 minutes to the provided time
-	global timer_time #uses lots of naughty global variables
-	global current_date_time
-	global release_times
-	global timer_value
-	try:
-		#release_times[key.char].append(current_date_time) #adds the time that current key was released to the correct dictionary
-		if key == key.space: 
-			#print('wow spacebar got pressed')
-			timer_time = current_date_time + timedelta(seconds = timer_value) #uses a timedelta object to calculate when the timer will go off
-			print(f'The timer is NOW set for {timer_time.time()}')
-			#print(timer_time.time())
+	if pressed: #checks if the mouse button is pressed
+		print(f'Mouse button {button} was pressed')
+		if button == mouse.Button.left:
+			press_time = current_date_time
 		else:
 			pass
-	except AttributeError:
-		pass
 
-listener = keyboard.Listener( #defines the keyboard listener to use the previous on_press and
-	on_press=on_press,
-    on_release=on_release)
+	else: #
+		print(f'Mouse button {button} was released')
+		if button == mouse.Button.left:
+			release_time = current_date_time
+			print(f'it was held for {(release_time - press_time).seconds} seconds')
+			if (release_time - press_time).seconds >= hold_time:
+				timer_time = datetime.min
+				print('The timer has been cancelled')
+			elif timer_time == datetime.min:
+				timer_time = current_date_time + timedelta(minutes = timer_minutes_value, seconds = timer_seconds_value)
+			else:
+				timer_time = timer_time + timedelta(minutes = timer_minutes_value, seconds = timer_seconds_value)
+		else:
+			pass
 
-listener.start() #starts the keyboard listener  
+listener = mouse.Listener( #defines the mouse listener to use the on_click function
+	on_click=on_click)
+
+listener.start() #starts the mouse listener  
 
 while True:
 	last_date = current_date
@@ -68,15 +67,24 @@ while True:
 		print_time = current_date_time.strftime('%I:%M:%S %p') # formats the date and times into a nice format (Day the DD of Month, YYYY) (HH:MM:SS AM/PM)
 #		print(f'The date today is {current_date_time.strftime('%A the %d of %M, %Y')} and it is currently {current_date_time.strftime('%I:%M:%S%p')}')
 		print(f'The date today is {print_date} and the current time is {print_time}')
+		if timer_time > datetime.min:
+			print(f'The timer is set for {timer_time.time()} and will be on for {(timer_time - current_date_time).seconds} seconds')
+			if timer_time <= current_date_time:
+				print('WEEWOOWEEWOOWEEWOO Timer is going off')
+				timer_time = datetime.min
+		else:
+			print('There is no timer set at the moment')
+
+
+
+'''
 		if timer_time == datetime.min:
 			print('Currently not a timer set')
 		else:
 			print(f'The timer is set for {timer_time.time()}\n')
-	try:
 		if timer_time <= current_date_time and timer_time != datetime.min:#checks if current time has exceeded the timer
 	 		print('YEEEEE FUCKING HAW TIMER TIME BOIS')
 	 		timer_time = datetime.min
 		else:
 			pass
-	except TypeError:
-		pass
+'''
