@@ -15,8 +15,8 @@ press_time = datetime.min
 release_time = datetime.min 
 
 timer_time = datetime.min #initialises the timer time to minimum possible time (as this can be treated as null in later logic)
-current_date_time = datetime.now() #initialises curent datetime
-
+current_date_time = datetime.now() #initialises curent datetime, and previous datetime
+last_date_time = datetime.now()
 #button = gpiozero.Button(7) #Assigns main button to Pin 7 WILL NEED CHANGING WHEN HARDWARE ASSEMBLED
 def on_click(x,y,button,pressed):
 	global current_date_time #global variables used to track the timing of mouse events etc
@@ -49,11 +49,43 @@ def on_click(x,y,button,pressed):
 		else:
 			pass
 
+def get_formatted_date_time(datetime_obj): #takes a datetime object and returns 2 nicely formatted strings
+	print_date = datetime_obj.strftime('%A the %d of %B, %Y')
+	print_time = datetime_obj.strftime('%I:%M:%S %p')
+	return print_date, print_time
+
+def console_info_print(): #checks if the time has changed by at least 1 second, prints all relevant info to console.
+	global current_date_time
+	global last_date_time
+	global timer_time 
+	print_date, print_time = get_formatted_date_time(current_date_time)
+	if current_date_time.replace(microsecond = 0) != last_date_time.replace(microsecond = 0): #only prints info if the datetime has changed by at least a second
+		print(f'The date today is {print_date} and the time is currently {print_time}')
+		if timer_time > datetime.min: #checks if timer set
+			print(f'The timer is set for {timer_time.time()} and will go off in {(timer_time - current_date_time).seconds} seconds')
+		else:
+			print('There isn\'t a timer set right now.')
+
 listener = mouse.Listener( #defines the mouse listener to use the on_click function
 	on_click=on_click)
 
 listener.start() #starts the mouse listener  
 
+while True:
+	last_date_time = current_date_time #updates previous datetime
+	current_date_time = datetime.now()#updates current datetime
+	console_info_print()#Tries to print all info to console
+	if timer_time > datetime.min: #checks if timer is set
+		if timer_time <= current_date_time: #checks if time has surpassed when timer should go off
+				print('WEEWOOWEEWOOWEEWOO Timer is going off') #timer goes off
+				timer_time = datetime.min #resets the timer once it goes off
+		else:
+			pass
+	else:
+		pass
+
+
+''' OLD MAIN LOOP
 while True:
 	last_date = current_date #keeps track of the date of last loop, so it can be updated only when it changes
 	last_time = current_time
@@ -64,6 +96,7 @@ while True:
 	current_time = (current_date_time.hour, current_date_time.minute, current_date_time.second)
 
 	if current_date != last_date or current_time != last_time:
+
 		print_date = current_date_time.strftime('%A the %d of %B, %Y')
 		print_time = current_date_time.strftime('%I:%M:%S %p') # formats the date and times into a nice format (Day the DD of Month, YYYY) (HH:MM:SS AM/PM)
 		print(f'The date today is {print_date} and the current time is {print_time}')
@@ -75,3 +108,4 @@ while True:
 				timer_time = datetime.min #resets the timer once it goes off
 		else:
 			print('There is no timer set at the moment')
+'''
