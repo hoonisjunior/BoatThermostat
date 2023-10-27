@@ -9,8 +9,8 @@ from pynput import mouse #used for testing and utlising the mouse as simulated b
 current_date = None #initialises current date and time variables
 current_time = None
 
-timer_minutes_value = 0 #These variables control how long to add to the timer per button press
-timer_seconds_value = 5 
+timer_minutes_value = 5 #These variables control how long to add to the timer per button press
+timer_seconds_value = 0 
 hold_time = 1 #This is how long constitutes holding the button (to reset the timer) in seconds
 
 press_time = datetime.min
@@ -33,12 +33,15 @@ def on_click(x,y,button,pressed):
 		else:
 			pass
 
-	else: #
+	else: #handles all events on mouse button release
 		print(f'Mouse button {button} was released')
 		if button == mouse.Button.left:
 			release_time = current_date_time
 			print(f'it was held for {(release_time - press_time).seconds} seconds')
-			if (release_time - press_time).seconds >= hold_time:
+			if (release_time - press_time).seconds >= 10:
+				print('stopping mouse listener')
+				pynput.mouse.Listener.stop
+			elif (release_time - press_time).seconds >= hold_time:
 				timer_time = datetime.min
 				print('The timer has been cancelled')
 			elif timer_time == datetime.min:
@@ -74,17 +77,3 @@ while True:
 				timer_time = datetime.min
 		else:
 			print('There is no timer set at the moment')
-
-
-
-'''
-		if timer_time == datetime.min:
-			print('Currently not a timer set')
-		else:
-			print(f'The timer is set for {timer_time.time()}\n')
-		if timer_time <= current_date_time and timer_time != datetime.min:#checks if current time has exceeded the timer
-	 		print('YEEEEE FUCKING HAW TIMER TIME BOIS')
-	 		timer_time = datetime.min
-		else:
-			pass
-'''
